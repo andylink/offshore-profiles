@@ -27,19 +27,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-6"
+        className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl w-full max-w-md space-y-6 border border-slate-200 dark:border-slate-700"
       >
-        <h1 className="text-2xl font-semibold text-center">
+        <h1 className="text-2xl font-semibold text-center text-slate-900 dark:text-white">
           Welcome back
         </h1>
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full border border-slate-200 rounded-lg px-4 py-2"
+          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -48,7 +48,7 @@ export default function LoginPage() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full border border-slate-200 rounded-lg px-4 py-2"
+          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -56,22 +56,20 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="w-full bg-slate-900 text-white py-2 rounded-lg hover:bg-slate-800 transition"
+          className="w-full bg-slate-900 dark:bg-slate-700 text-white py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-600 transition"
         >
           Login
         </button>
 
         <a
           href="/reset"
-          className="block text-center text-sm text-blue-600 hover:underline"
+          className="block text-center text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
           Forgot password?
         </a>
 
         {errorMessage && (
-          <p className="text-sm text-center text-red-500">
-            {errorMessage}
-          </p>
+          <p className="text-sm text-center text-red-500">{errorMessage}</p>
         )}
       </form>
     </div>

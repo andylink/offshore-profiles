@@ -1,20 +1,17 @@
-"use client";
+"use client"
 
-import { useTheme } from "./providers";
+import { useTheme } from "@/context/ThemeContext"
 
-export function DarkModeToggle() {
-  const { isDark, toggleDarkMode } = useTheme();
+export const DarkModeToggle = () => {
+  const { darkMode, toggleDarkMode } = useTheme()
 
   return (
     <button
-      onClick={() => {
-        toggleDarkMode();
-      }}
-      className="rounded-lg bg-gray-200 p-2 text-black dark:bg-gray-800 dark:text-white transition-colors"
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      type="button"
+      onClick={toggleDarkMode}
+      className="px-3 py-1 border rounded-lg text-slate-700 dark:text-slate-200 dark:border-slate-600"
     >
-      {isDark ? "☀️" : "🌙"}
+      {darkMode ? "☀️ Light" : "🌙 Dark"}
     </button>
-  );
+  )
 }
+

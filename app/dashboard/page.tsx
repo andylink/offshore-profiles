@@ -51,7 +51,9 @@ export default function DashboardPage() {
           <p className="mt-2 text-slate-600 dark:text-slate-400">
             Your offshore professional profile is not yet completed.
           </p>
-          <button className="mt-6 bg-blue-600 dark:bg-blue-700 text-white px-5 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+          <button 
+            onClick={() => router.push("/profile/setup")}
+            className="mt-6 bg-blue-600 dark:bg-blue-700 text-white px-5 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">
             Complete Profile
           </button>
         </div>

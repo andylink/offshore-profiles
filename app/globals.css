@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+/* 1. Tell Tailwind v4 to look for the .dark class */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+/* 2. Manual variable overrides for dark mode */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,12 +21,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 3. REMOVE the @media (prefers-color-scheme: dark) block entirely */
 
 body {
   background: var(--background);

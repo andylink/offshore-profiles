@@ -29,19 +29,19 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
       <form
         onSubmit={handleSignup}
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-6"
+        className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl w-full max-w-md space-y-6 border border-slate-200 dark:border-slate-700"
       >
-        <h1 className="text-2xl font-semibold text-center">
+        <h1 className="text-2xl font-semibold text-center dark:text-white">
           Create your profile
         </h1>
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full border border-slate-200 rounded-lg px-4 py-2"
+          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -50,7 +50,7 @@ export default function SignupPage() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full border border-slate-200 rounded-lg px-4 py-2"
+          className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -59,13 +59,13 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 dark:bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition"
         >
           {loading ? "Creating..." : "Sign Up"}
         </button>
 
         {message && (
-          <p className="text-sm text-center text-slate-600">{message}</p>
+          <p className="text-sm text-center text-slate-600 dark:text-slate-300">{message}</p>
         )}
       </form>
     </div>

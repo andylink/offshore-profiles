@@ -25,6 +25,9 @@ type CvRecord = {
   is_published: boolean
   include_avatar: boolean
   include_personal: boolean
+  include_phone: boolean
+  include_email: boolean
+  include_location: boolean
   include_roles: boolean
   include_seatime: boolean
   include_rov: boolean
@@ -176,6 +179,9 @@ export default function PublicCvPage() {
           is_published: Boolean(cvData.is_published),
           include_avatar: cvData.include_avatar !== false,
           include_personal: Boolean(cvData.include_personal),
+          include_phone: cvData.include_phone !== false,
+          include_email: cvData.include_email !== false,
+          include_location: cvData.include_location !== false,
           include_roles: Boolean(cvData.include_roles),
           include_seatime: Boolean(cvData.include_seatime),
           include_rov: Boolean(cvData.include_rov),
@@ -336,9 +342,9 @@ export default function PublicCvPage() {
               <div>
                 <h2 className="text-lg font-semibold mb-4 tracking-wide uppercase">Contact</h2>
                 <div className="space-y-3 text-sm text-slate-100">
-                  <div className="flex items-center gap-3"><Phone size={16} />{profile.phone_number || "No phone"}</div>
-                  <div className="flex items-center gap-3"><Mail size={16} />{profile.contact_email || "No email"}</div>
-                  <div className="flex items-center gap-3"><MapPin size={16} />{[profile.current_city, profile.current_country].filter(Boolean).join(", ") || "No location"}</div>
+                  {cv.include_phone && <div className="flex items-center gap-3"><Phone size={16} />{profile.phone_number || "No phone"}</div>}
+                  {cv.include_email && <div className="flex items-center gap-3"><Mail size={16} />{profile.contact_email || "No email"}</div>}
+                  {cv.include_location && <div className="flex items-center gap-3"><MapPin size={16} />{[profile.current_city, profile.current_country].filter(Boolean).join(", ") || "No location"}</div>}
                   <div className="flex items-center gap-3"><Globe size={16} />{cv.linkedin_url || "No profile URL"}</div>
                 </div>
               </div>

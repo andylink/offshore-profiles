@@ -57,7 +57,10 @@ create index if not exists idx_profile_cvs_published
   on public.profile_cvs(profile_id, is_published, is_default_public, updated_at desc);
 
 alter table public.profile_cvs
-  add column if not exists include_avatar boolean not null default true;
+  add column if not exists include_avatar boolean not null default true,
+  add column if not exists include_phone boolean not null default true,
+  add column if not exists include_email boolean not null default true,
+  add column if not exists include_location boolean not null default true;
 
 -- Keep updated_at fresh
 create or replace function public.set_profile_cvs_updated_at()

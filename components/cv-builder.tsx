@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { FileText, Globe, Mail, MapPin, Phone, Plus, Trash2, User } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, Globe, Mail, MapPin, Phone, Plus, Trash2, User } from "lucide-react"
 
 type Profile = {
   id: string
@@ -71,6 +71,9 @@ type CvRecord = {
   is_default_public: boolean
   include_avatar: boolean
   include_personal: boolean
+  include_phone: boolean
+  include_email: boolean
+  include_location: boolean
   include_roles: boolean
   include_seatime: boolean
   include_rov: boolean
@@ -127,6 +130,7 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const [isOptionsCollapsed, setIsOptionsCollapsed] = useState(false)
 
   const [roles, setRoles] = useState<RoleItem[]>([])
   const [seaTime, setSeaTime] = useState<SeaTimeItem[]>([])
@@ -142,6 +146,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
   const [includeAvatar, setIncludeAvatar] = useState(true)
 
   const [includePersonal, setIncludePersonal] = useState(true)
+  const [includePhone, setIncludePhone] = useState(true)
+  const [includeEmail, setIncludeEmail] = useState(true)
+  const [includeLocation, setIncludeLocation] = useState(true)
   const [includeRoles, setIncludeRoles] = useState(true)
   const [includeSeaTime, setIncludeSeaTime] = useState(true)
   const [includeRov, setIncludeRov] = useState(true)
@@ -229,6 +236,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
     setIncludeAvatar(record.include_avatar !== false)
 
     setIncludePersonal(Boolean(record.include_personal))
+    setIncludePhone(record.include_phone !== false)
+    setIncludeEmail(record.include_email !== false)
+    setIncludeLocation(record.include_location !== false)
     setIncludeRoles(Boolean(record.include_roles))
     setIncludeSeaTime(Boolean(record.include_seatime))
     setIncludeRov(Boolean(record.include_rov))
@@ -262,6 +272,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
     setIncludeAvatar(true)
 
     setIncludePersonal(true)
+    setIncludePhone(true)
+    setIncludeEmail(true)
+    setIncludeLocation(true)
     setIncludeRoles(true)
     setIncludeSeaTime(true)
     setIncludeRov(true)
@@ -306,6 +319,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
       is_default_public: Boolean(row.is_default_public),
       include_avatar: row.include_avatar !== false,
       include_personal: Boolean(row.include_personal),
+      include_phone: row.include_phone !== false,
+      include_email: row.include_email !== false,
+      include_location: row.include_location !== false,
       include_roles: Boolean(row.include_roles),
       include_seatime: Boolean(row.include_seatime),
       include_rov: Boolean(row.include_rov),
@@ -504,6 +520,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
         is_default_public: effectiveDefaultPublic,
         include_avatar: includeAvatar,
         include_personal: includePersonal,
+        include_phone: includePhone,
+        include_email: includeEmail,
+        include_location: includeLocation,
         include_roles: includeRoles,
         include_seatime: includeSeaTime,
         include_rov: includeRov,
@@ -564,6 +583,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
             is_default_public: Boolean(fresh.is_default_public),
             include_avatar: fresh.include_avatar !== false,
             include_personal: Boolean(fresh.include_personal),
+            include_phone: fresh.include_phone !== false,
+            include_email: fresh.include_email !== false,
+            include_location: fresh.include_location !== false,
             include_roles: Boolean(fresh.include_roles),
             include_seatime: Boolean(fresh.include_seatime),
             include_rov: Boolean(fresh.include_rov),
@@ -613,6 +635,9 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
     setIncludeAvatar(true)
 
     setIncludePersonal(true)
+    setIncludePhone(true)
+    setIncludeEmail(true)
+    setIncludeLocation(true)
     setIncludeRoles(true)
     setIncludeSeaTime(true)
     setIncludeRov(true)
@@ -678,8 +703,25 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
       {error && <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
       {statusMessage && <div className="rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 px-4 py-3 text-sm">{statusMessage}</div>}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-        <section className="bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 p-5 space-y-6">
+      <div className="flex flex-col xl:flex-row gap-6 items-start">
+        <div className="w-full flex justify-end xl:hidden">
+          <button
+            onClick={() => setIsOptionsCollapsed((prev) => !prev)}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800"
+          >
+            {isOptionsCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {isOptionsCollapsed ? "Show Options" : "Hide Options"}
+          </button>
+        </div>
+
+        <div
+          className={`w-full overflow-hidden transition-all duration-300 ease-out ${
+            isOptionsCollapsed
+              ? "xl:w-0 xl:opacity-0 xl:-translate-x-6 xl:pointer-events-none"
+              : "xl:w-[440px] xl:opacity-100 xl:translate-x-0"
+          }`}
+        >
+          <section className="bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 p-5 space-y-6 xl:w-[440px]">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black uppercase tracking-wider text-slate-500">CV documents</h3>
@@ -828,6 +870,22 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
                 <input type="checkbox" checked={includePersonal} onChange={(e) => setIncludePersonal(e.target.checked)} />
                 Contact details
               </label>
+              {includePersonal && (
+                <div className="ml-6 space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={includePhone} onChange={(e) => setIncludePhone(e.target.checked)} />
+                    Telephone
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={includeEmail} onChange={(e) => setIncludeEmail(e.target.checked)} />
+                    Contact email
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={includeLocation} onChange={(e) => setIncludeLocation(e.target.checked)} />
+                    Location
+                  </label>
+                </div>
+              )}
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={includeRoles} onChange={(e) => setIncludeRoles(e.target.checked)} />
                 Role history
@@ -989,17 +1047,27 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
               </div>
             </div>
           </div>
-        </section>
+          </section>
+        </div>
 
-        <section className="bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 p-6">
+        <section className="w-full flex-1 bg-white dark:bg-slate-900 rounded-2xl border dark:border-slate-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black uppercase tracking-wider text-slate-500">Live preview</h3>
-            <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800"
-            >
-              <FileText className="w-4 h-4" /> Print / Save PDF
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsOptionsCollapsed((prev) => !prev)}
+                className="hidden xl:inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                {isOptionsCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                {isOptionsCollapsed ? "Show Options" : "Hide Options"}
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <FileText className="w-4 h-4" /> Print / Save PDF
+              </button>
+            </div>
           </div>
 
           <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
@@ -1021,18 +1089,24 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
                   <div>
                     <h2 className="text-lg font-semibold mb-4 tracking-wide uppercase">Contact</h2>
                     <div className="space-y-3 text-sm text-slate-100">
-                      <div className="flex items-center gap-3">
-                        <Phone size={16} />
-                        {profile.phone_number || "No phone"}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Mail size={16} />
-                        {profile.contact_email || "No email"}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <MapPin size={16} />
-                        {[profile.current_city, profile.current_country].filter(Boolean).join(", ") || "No location"}
-                      </div>
+                      {includePhone && (
+                        <div className="flex items-center gap-3">
+                          <Phone size={16} />
+                          {profile.phone_number || "No phone"}
+                        </div>
+                      )}
+                      {includeEmail && (
+                        <div className="flex items-center gap-3">
+                          <Mail size={16} />
+                          {profile.contact_email || "No email"}
+                        </div>
+                      )}
+                      {includeLocation && (
+                        <div className="flex items-center gap-3">
+                          <MapPin size={16} />
+                          {[profile.current_city, profile.current_country].filter(Boolean).join(", ") || "No location"}
+                        </div>
+                      )}
                       <div className="flex items-center gap-3">
                         <Globe size={16} />
                         {linkedinUrl || "No profile URL"}

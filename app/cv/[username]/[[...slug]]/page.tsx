@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Globe, Mail, MapPin, Phone, User } from "lucide-react"
+import MarkdownContent from "@/components/markdown-content"
+import { normalizeCustomSections, type CustomSection } from "@/lib/custom-sections"
 
 type PublicProfile = {
   id: string
@@ -28,49 +30,12 @@ type CvRecord = {
   include_phone: boolean
   include_email: boolean
   include_location: boolean
-  include_roles: boolean
-  include_seatime: boolean
-  include_rov: boolean
   include_certificates: boolean
-  selected_role_ids: string[]
-  selected_seatime_ids: string[]
-  selected_rov_ids: string[]
   selected_cert_ids: string[]
   headline: string
-  professional_summary: string
   key_skills: string
   linkedin_url: string
-  education: string
-  additional_notes: string
-  custom_sections: { id: string; title: string; content: string }[]
-}
-
-type RoleItem = {
-  profile_role_id: string
-  role_name: string
-  category: string | null
-}
-
-type SeaTimeItem = {
-  id: string
-  profile_role_id: string | null
-  vessel_name: string | null
-  start_date: string | null
-  end_date: string | null
-  sea_days: number | null
-  voyage_description: string | null
-}
-
-type RovItem = {
-  id: string
-  profile_role_id: string | null
-  project_name: string | null
-  client_name: string | null
-  location: string | null
-  start_date: string | null
-  end_date: string | null
-  offshore_days: number | null
-  scope_of_work: string | null
+  custom_sections: CustomSection[]
 }
 
 type CertItem = {
@@ -78,27 +43,11 @@ type CertItem = {
   cert_name: string
 }
 
-const formatDate = (value: string | null) => {
-  if (!value) return ""
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString(undefined, { year: "numeric", month: "short" })
-}
-
 const asList = (text: string) =>
   (text || "")
     .split("\n")
     .map((item) => item.trim())
     .filter(Boolean)
-
-const parseCustomSections = (value: unknown) => {
-  if (!Array.isArray(value)) return []
-  return value.map((entry: any) => ({
-    id: typeof entry?.id === "string" ? entry.id : crypto.randomUUID(),
-    title: typeof entry?.title === "string" ? entry.title : "",
-    content: typeof entry?.content === "string" ? entry.content : "",
-  }))
-}
 
 export default function PublicCvPage() {
   const params = useParams<{ username: string; slug?: string[] }>()
@@ -112,9 +61,6 @@ export default function PublicCvPage() {
   const [cv, setCv] = useState<CvRecord | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
-  const [roles, setRoles] = useState<RoleItem[]>([])
-  const [seaTime, setSeaTime] = useState<SeaTimeItem[]>([])
-  const [rovExperience, setRovExperience] = useState<RovItem[]>([])
   const [certificates, setCertificates] = useState<CertItem[]>([])
 
   useEffect(() => {
@@ -182,56 +128,22 @@ export default function PublicCvPage() {
           include_phone: cvData.include_phone !== false,
           include_email: cvData.include_email !== false,
           include_location: cvData.include_location !== false,
-          include_roles: Boolean(cvData.include_roles),
-          include_seatime: Boolean(cvData.include_seatime),
-          include_rov: Boolean(cvData.include_rov),
           include_certificates: Boolean(cvData.include_certificates),
-          selected_role_ids: (cvData.selected_role_ids ?? []) as string[],
-          selected_seatime_ids: (cvData.selected_seatime_ids ?? []) as string[],
-          selected_rov_ids: (cvData.selected_rov_ids ?? []) as string[],
           selected_cert_ids: (cvData.selected_cert_ids ?? []) as string[],
           headline: cvData.headline || "",
-          professional_summary: cvData.professional_summary || "",
           key_skills: cvData.key_skills || "",
           linkedin_url: cvData.linkedin_url || "",
-          education: cvData.education || "",
-          additional_notes: cvData.additional_notes || "",
-          custom_sections: parseCustomSections(cvData.custom_sections),
+          custom_sections: normalizeCustomSections(cvData.custom_sections),
         }
 
-        const [rolesRes, seaRes, rovRes, certRes] = await Promise.all([
-          supabase
-            .from("profile_roles")
-            .select("id, lookup_roles(role_name, category)")
-            .eq("profile_id", profileRow.id),
-          supabase
-            .from("profile_seatime")
-            .select("id, profile_role_id, vessel_name, start_date, end_date, sea_days, voyage_description")
-            .eq("profile_id", profileRow.id)
-            .order("start_date", { ascending: false }),
-          supabase
-            .from("profile_rov_experience")
-            .select("id, profile_role_id, project_name, client_name, location, start_date, end_date, offshore_days, scope_of_work")
-            .eq("profile_id", profileRow.id)
-            .order("start_date", { ascending: false }),
-          supabase
-            .from("profile_certs")
-            .select("id, lookup_certs(cert_name)")
-            .eq("profile_id", profileRow.id),
-        ])
+        const { data: certData, error: certError } = await supabase
+          .from("profile_certs")
+          .select("id, lookup_certs(cert_name)")
+          .eq("profile_id", profileRow.id)
 
-        if (rolesRes.error) throw rolesRes.error
-        if (seaRes.error) throw seaRes.error
-        if (rovRes.error) throw rovRes.error
-        if (certRes.error) throw certRes.error
+        if (certError) throw certError
 
-        const mappedRoles: RoleItem[] = (rolesRes.data ?? []).map((row: any) => ({
-          profile_role_id: row.id,
-          role_name: row.lookup_roles?.role_name ?? "Unknown Role",
-          category: row.lookup_roles?.category ?? null,
-        }))
-
-        const mappedCerts: CertItem[] = (certRes.data ?? []).map((row: any) => ({
+        const mappedCerts: CertItem[] = (certData ?? []).map((row: any) => ({
           id: row.id,
           cert_name: row.lookup_certs?.cert_name ?? "Unknown Certificate",
         }))
@@ -240,9 +152,6 @@ export default function PublicCvPage() {
 
         setProfile(profileRow)
         setCv(cvRow)
-        setRoles(mappedRoles)
-        setSeaTime((seaRes.data ?? []) as SeaTimeItem[])
-        setRovExperience((rovRes.data ?? []) as RovItem[])
         setCertificates(mappedCerts)
 
         if (profileRow.avatar_url) {
@@ -276,30 +185,6 @@ export default function PublicCvPage() {
     }
   }, [slug, username])
 
-  const roleByProfileRoleId = useMemo(
-    () =>
-      roles.reduce<Record<string, string>>((acc, role) => {
-        acc[role.profile_role_id] = role.role_name
-        return acc
-      }, {}),
-    [roles]
-  )
-
-  const selectedRoles = useMemo(() => {
-    if (!cv) return []
-    return roles.filter((role) => cv.selected_role_ids.includes(role.profile_role_id))
-  }, [cv, roles])
-
-  const selectedSeaTime = useMemo(() => {
-    if (!cv) return []
-    return seaTime.filter((entry) => cv.selected_seatime_ids.includes(entry.id))
-  }, [cv, seaTime])
-
-  const selectedRov = useMemo(() => {
-    if (!cv) return []
-    return rovExperience.filter((entry) => cv.selected_rov_ids.includes(entry.id))
-  }, [cv, rovExperience])
-
   const selectedCerts = useMemo(() => {
     if (!cv) return []
     return certificates.filter((entry) => cv.selected_cert_ids.includes(entry.id))
@@ -317,9 +202,6 @@ export default function PublicCvPage() {
   const showFreePromo = !isPaidMember
 
   const skillItems = asList(cv.key_skills)
-  const summaryParagraphs = asList(cv.professional_summary)
-  const educationLines = asList(cv.education)
-  const additionalInfoLines = asList(cv.additional_notes)
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8 flex justify-center">
@@ -377,96 +259,14 @@ export default function PublicCvPage() {
               {cv.headline && <p className="text-lg text-slate-600 mt-2">{cv.headline}</p>}
             </header>
 
-            {summaryParagraphs.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold border-b border-slate-200 pb-2 mb-4 uppercase tracking-wide text-slate-900">Professional Profile</h2>
-                <div className="space-y-2 leading-relaxed">{summaryParagraphs.map((line, idx) => <p key={`${line}-${idx}`}>{line}</p>)}</div>
-              </section>
-            )}
-
-            {(cv.include_seatime && selectedSeaTime.length > 0) || (cv.include_rov && selectedRov.length > 0) ? (
-              <section>
-                <h2 className="text-xl font-semibold border-b border-slate-200 pb-2 mb-6 uppercase tracking-wide text-slate-900">Offshore Experience</h2>
-                <div className="space-y-6">
-                  {cv.include_seatime && selectedSeaTime.map((entry) => (
-                    <div key={entry.id}>
-                      <div className="flex flex-wrap justify-between items-center gap-2">
-                        <h3 className="text-lg font-semibold text-slate-900">{entry.vessel_name || "Unnamed vessel"}</h3>
-                        <span className="text-sm text-slate-500">{formatDate(entry.start_date)} - {formatDate(entry.end_date) || "Present"}</span>
-                      </div>
-                      <p className="text-sm text-slate-500">
-                        {entry.profile_role_id ? roleByProfileRoleId[entry.profile_role_id] || "Sea Time Entry" : "Sea Time Entry"}
-                        {entry.sea_days != null ? ` • ${entry.sea_days} days` : ""}
-                      </p>
-                      {entry.voyage_description && (
-                        <ul className="list-disc list-inside mt-2 text-sm space-y-1">
-                          {asList(entry.voyage_description).map((point, idx) => <li key={`${entry.id}-voy-${idx}`}>{point}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-
-                  {cv.include_rov && selectedRov.map((entry) => (
-                    <div key={entry.id}>
-                      <div className="flex flex-wrap justify-between items-center gap-2">
-                        <h3 className="text-lg font-semibold text-slate-900">{entry.project_name || "Unnamed project"}</h3>
-                        <span className="text-sm text-slate-500">{formatDate(entry.start_date)} - {formatDate(entry.end_date) || "Present"}</span>
-                      </div>
-                      <p className="text-sm text-slate-500">
-                        {entry.client_name || "ROV Project"}
-                        {entry.location ? ` • ${entry.location}` : ""}
-                        {entry.offshore_days != null ? ` • ${entry.offshore_days} offshore days` : ""}
-                      </p>
-                      {entry.scope_of_work && (
-                        <ul className="list-disc list-inside mt-2 text-sm space-y-1">
-                          {asList(entry.scope_of_work).map((point, idx) => <li key={`${entry.id}-scope-${idx}`}>{point}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
-            {cv.include_roles && selectedRoles.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold border-b border-slate-200 pb-2 mb-4 uppercase tracking-wide text-slate-900">Role Summary</h2>
-                <ul className="list-disc list-inside text-sm space-y-1">
-                  {selectedRoles.map((role) => (
-                    <li key={role.profile_role_id}>{role.role_name}{role.category ? ` (${role.category})` : ""}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {educationLines.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold border-b border-slate-200 pb-2 mb-4 uppercase tracking-wide text-slate-900">Education</h2>
-                <ul className="list-disc list-inside text-sm space-y-1">
-                  {educationLines.map((line, idx) => <li key={`edu-${idx}`}>{line}</li>)}
-                </ul>
-              </section>
-            )}
-
             {cv.custom_sections
               .filter((section) => section.title.trim() && section.content.trim())
               .map((section) => (
                 <section key={section.id}>
                   <h2 className="text-xl font-semibold border-b border-slate-200 pb-2 mb-4 uppercase tracking-wide text-slate-900">{section.title}</h2>
-                  <ul className="list-disc list-inside text-sm space-y-1">
-                    {asList(section.content).map((line, idx) => <li key={`${section.id}-${idx}`}>{line}</li>)}
-                  </ul>
+                  <MarkdownContent content={section.content} className="space-y-3 text-sm" />
                 </section>
               ))}
-
-            {additionalInfoLines.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold border-b border-slate-200 pb-2 mb-4 uppercase tracking-wide text-slate-900">Additional Information</h2>
-                <ul className="list-disc list-inside text-sm space-y-1">
-                  {additionalInfoLines.map((line, idx) => <li key={`add-${idx}`}>{line}</li>)}
-                </ul>
-              </section>
-            )}
 
             {showFreePromo && (
               <section className="print:hidden rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">

@@ -8,10 +8,11 @@ import ProfileManagement from "@/components/profile-management"
 import CertsManagement from "@/components/cert-management"
 import RolesManagement from "@/components/role-management"
 import ExperienceManagement from "@/components/experience-management"
+import CvBuilder from "@/components/cv-builder"
 import { 
   LayoutDashboard, User, Briefcase, Ship, Settings, 
   Menu, X, Eye, Award, Clock, AlertTriangle, ChevronRight, Anchor, ArrowRight,
-  School2
+  School2, FileText
 } from "lucide-react"
 
 export default function DashboardPage() {
@@ -82,6 +83,7 @@ export default function DashboardPage() {
       case 'roles': return <RolesManagement profile={profile} setProfile={setProfile} />
       case 'experience': return <ExperienceManagement profile={profile} setProfile={setProfile} />
       case 'certificates': return <CertsManagement profile={profile} setProfile={setProfile} />
+      case 'cv-builder': return <CvBuilder profile={profile} />
       case 'settings': return <div className="p-8">Settings (Coming Soon)</div>
       default: return <HomeOverview profile={profile} />
     }
@@ -109,6 +111,7 @@ export default function DashboardPage() {
           <NavItem icon={Briefcase} label="Role Management" active={activeTab === 'roles'} onClick={() => {setActiveTab('roles'); setIsSidebarOpen(false)}} />
           <NavItem icon={Ship} label="Experience History" active={activeTab === 'experience'} onClick={() => {setActiveTab('experience'); setIsSidebarOpen(false)}} />
           <NavItem icon={School2} label="Certificates" active={activeTab === 'certificates'} onClick={() => {setActiveTab('certificates'); setIsSidebarOpen(false)}} />
+          <NavItem icon={FileText} label="Resume Builder" active={activeTab === 'cv-builder'} onClick={() => {setActiveTab('cv-builder'); setIsSidebarOpen(false)}} />
           <div className="pt-4 border-t dark:border-slate-800">
             <NavItem icon={Settings} label="Settings" active={activeTab === 'settings'} onClick={() => {setActiveTab('settings'); setIsSidebarOpen(false)}} />
           </div>

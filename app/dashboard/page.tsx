@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
+import ProfileManagement from "@/components/profile-management"
 import { 
   LayoutDashboard, User, Briefcase, Ship, Settings, 
-  Menu, X, Eye, Award, Clock, AlertTriangle, ChevronRight, Anchor, ArrowRight
+  Menu, X, Eye, Award, Clock, AlertTriangle, ChevronRight, Anchor, ArrowRight,
+  School2
 } from "lucide-react"
 
 export default function DashboardPage() {
@@ -73,9 +75,10 @@ export default function DashboardPage() {
   const renderContent = () => {
     switch (activeTab) {
       case 'home': return <HomeOverview profile={profile} />
-      case 'profile': return <div className="p-8">Profile Management (Coming Soon)</div>
+      case 'profile': return <ProfileManagement profile={profile} setProfile={setProfile} />
       case 'roles': return <div className="p-8">Role Management (Coming Soon)</div>
       case 'experience': return <div className="p-8">Experience Logs (Coming Soon)</div>
+      case 'certificates': return <div className="p-8">Certificates (Coming Soon)</div>
       default: return <HomeOverview profile={profile} />
     }
   }
@@ -98,9 +101,10 @@ export default function DashboardPage() {
 
         <nav className="mt-4 px-4 space-y-2">
           <NavItem icon={LayoutDashboard} label="Overview" active={activeTab === 'home'} onClick={() => {setActiveTab('home'); setIsSidebarOpen(false)}} />
-          <NavItem icon={User} label="Professional Profile" active={activeTab === 'profile'} onClick={() => {setActiveTab('profile'); setIsSidebarOpen(false)}} />
+          <NavItem icon={User} label="Personal Details" active={activeTab === 'profile'} onClick={() => {setActiveTab('profile'); setIsSidebarOpen(false)}} />
           <NavItem icon={Briefcase} label="Role Management" active={activeTab === 'roles'} onClick={() => {setActiveTab('roles'); setIsSidebarOpen(false)}} />
           <NavItem icon={Ship} label="Experience History" active={activeTab === 'experience'} onClick={() => {setActiveTab('experience'); setIsSidebarOpen(false)}} />
+          <NavItem icon={School2} label="Certificates" active={activeTab === 'certificates'} onClick={() => {setActiveTab('certificates'); setIsSidebarOpen(false)}} />
           <div className="pt-4 border-t dark:border-slate-800">
             <NavItem icon={Settings} label="Settings" active={activeTab === 'settings'} onClick={() => {setActiveTab('settings'); setIsSidebarOpen(false)}} />
           </div>

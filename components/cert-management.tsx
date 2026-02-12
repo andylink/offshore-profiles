@@ -34,6 +34,7 @@ export default function CertsManagement({ profile, setProfile }: { profile: Prof
 	const [lookupCerts, setLookupCerts] = useState<LookupCert[]>([])
 	const [loadingLookup, setLoadingLookup] = useState(false)
 	const [savingCert, setSavingCert] = useState(false)
+	const [deletingCertId, setDeletingCertId] = useState<string | null>(null)
 	const [addError, setAddError] = useState<string | null>(null)
 	const [selectedCategory, setSelectedCategory] = useState("")
 	const [certificateFile, setCertificateFile] = useState<File | null>(null)
@@ -310,6 +311,41 @@ export default function CertsManagement({ profile, setProfile }: { profile: Prof
 		}
 	}
 
+	const handleDeleteCertificate = async (cert: ProfileCert & { cert_name?: string }) => {
+		if (!profile?.id) return
+
+		const confirmDelete = window.confirm(`Delete certificate "${cert.cert_name ?? cert.cert_id ?? "Unknown"}"?`)
+		if (!confirmDelete) return
+
+		setError(null)
+		setDeletingCertId(cert.id)
+		try {
+			const { data: deletedRows, error: deleteError } = await supabase
+				.from("profile_certs")
+				.delete()
+				.eq("id", cert.id)
+				.eq("profile_id", profile.id)
+				.select("id")
+
+			if (deleteError) throw deleteError
+
+			if (!deletedRows?.length) {
+				throw new Error("No certificate was deleted. Check row permissions (RLS) for delete on profile_certs.")
+			}
+
+			if (selectedCert?.id === cert.id) {
+				setSelectedCert(null)
+				setCertificateUrl(null)
+			}
+
+			await fetchCerts(profile.id)
+		} catch (err: any) {
+			setError(err?.message ?? "Failed to delete certificate")
+		} finally {
+			setDeletingCertId(null)
+		}
+	}
+
 	return (
 		<div>
 			<div className="flex items-center justify-between gap-3">
@@ -358,14 +394,27 @@ export default function CertsManagement({ profile, setProfile }: { profile: Prof
 													Expires: {c.has_no_expiry ? "No expiry" : c.expiry_date ? new Date(c.expiry_date).toLocaleDateString() : "—"}
 												</div>
 											</div>
-											{c.certificate_url ? (
+											<div className="flex items-center gap-3">
+												{c.certificate_url ? (
+													<button
+														onClick={() => setSelectedCert(c)}
+														className="text-blue-600 hover:text-blue-800 font-medium"
+													>
+														View
+													</button>
+												) : null}
 												<button
-													onClick={() => setSelectedCert(c)}
-													className="text-blue-600 hover:text-blue-800 font-medium"
+													type="button"
+													onClick={(e) => {
+														e.stopPropagation()
+														void handleDeleteCertificate(c)
+													}}
+													className="text-red-600 hover:text-red-800 font-medium disabled:opacity-50"
+													disabled={deletingCertId === c.id}
 												>
-													View
+													{deletingCertId === c.id ? "Deleting..." : "Delete"}
 												</button>
-											) : null}
+											</div>
 										</div>
 									</li>
 								)

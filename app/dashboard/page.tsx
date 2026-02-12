@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
 import ProfileManagement from "@/components/profile-management"
+import CertsManagement from "@/components/cert-management"
 import { 
   LayoutDashboard, User, Briefcase, Ship, Settings, 
   Menu, X, Eye, Award, Clock, AlertTriangle, ChevronRight, Anchor, ArrowRight,
@@ -78,7 +79,8 @@ export default function DashboardPage() {
       case 'profile': return <ProfileManagement profile={profile} setProfile={setProfile} />
       case 'roles': return <div className="p-8">Role Management (Coming Soon)</div>
       case 'experience': return <div className="p-8">Experience Logs (Coming Soon)</div>
-      case 'certificates': return <div className="p-8">Certificates (Coming Soon)</div>
+      case 'certificates': return <CertsManagement profile={profile} setProfile={setProfile} />
+      case 'settings': return <div className="p-8">Settings (Coming Soon)</div>
       default: return <HomeOverview profile={profile} />
     }
   }

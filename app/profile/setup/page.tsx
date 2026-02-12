@@ -17,8 +17,15 @@ export default function ProfileStepOne() {
   const [userId, setUserId] = useState<string | null>(null)
   
   const [formData, setFormData] = useState({
-    fullName: "",
-    dob: "",
+    full_name: "",
+    date_of_birth: "",
+    nationality: "",
+    current_city: "",
+    current_country: "",
+    phone_number: "",
+    contact_email: "",
+    gender: "",
+    marital_status: "",
   })
 
   // Auth check
@@ -48,10 +55,7 @@ export default function ProfileStepOne() {
 
   // Debounce Username Check
   useEffect(() => {
-    if (username.length < 3) {
-      setIsUsernameAvailable(null)
-      return
-    }
+    if (username.length < 3) return
 
     const checkUsername = async () => {
       setCheckingUsername(true)
@@ -84,8 +88,15 @@ export default function ProfileStepOne() {
       const { error } = await supabase.from('profiles').upsert({
         id: user.id,
         username: username.toLowerCase(),
-        full_name: formData.fullName,
-        date_of_birth: formData.dob,
+        full_name: formData.full_name,
+        date_of_birth: formData.date_of_birth,
+        nationality: formData.nationality,
+        current_city: formData.current_city,
+        current_country: formData.current_country,
+        phone_number: formData.phone_number,
+        contact_email: formData.contact_email,
+        gender: formData.gender,
+        marital_status: formData.marital_status,
         avatar_url: avatarUrl,
         setup_completed: true
       })
@@ -126,7 +137,11 @@ export default function ProfileStepOne() {
             <input
               required
               value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+              onChange={(e) => {
+                const normalized = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')
+                setUsername(normalized)
+                if (normalized.length < 3) setIsUsernameAvailable(null)
+              }}
               placeholder="e.g. jsmith_rov"
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
             />
@@ -145,8 +160,8 @@ export default function ProfileStepOne() {
           <input
             required
             type="text"
-            value={formData.fullName}
-            onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+            value={formData.full_name}
+            onChange={(e) => setFormData({...formData, full_name: e.target.value})}
             className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
           />
         </div>
@@ -157,8 +172,78 @@ export default function ProfileStepOne() {
           <input
             required
             type="date"
-            value={formData.dob}
-            onChange={(e) => setFormData({...formData, dob: e.target.value})}
+            value={formData.date_of_birth}
+            onChange={(e) => setFormData({...formData, date_of_birth: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Nationality</label>
+          <input
+            type="text"
+            value={formData.nationality}
+            onChange={(e) => setFormData({...formData, nationality: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Current City</label>
+          <input
+            type="text"
+            value={formData.current_city}
+            onChange={(e) => setFormData({...formData, current_city: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Current Country</label>
+          <input
+            type="text"
+            value={formData.current_country}
+            onChange={(e) => setFormData({...formData, current_country: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Phone Number</label>
+          <input
+            type="tel"
+            value={formData.phone_number}
+            onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Contact Email</label>
+          <input
+            type="email"
+            value={formData.contact_email}
+            onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Gender</label>
+          <input
+            type="text"
+            value={formData.gender}
+            onChange={(e) => setFormData({...formData, gender: e.target.value})}
+            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Marital Status</label>
+          <input
+            type="text"
+            value={formData.marital_status}
+            onChange={(e) => setFormData({...formData, marital_status: e.target.value})}
             className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
           />
         </div>

@@ -4,13 +4,35 @@ import { supabase } from "@/lib/supabase"
 import { User } from "lucide-react"
 import Link from "next/link"
 
-export default function ProfileManagement({ profile, setProfile }: { profile: any, setProfile: (p: any) => void }) {
+type ProfileData = {
+  id: string
+  full_name?: string | null
+  username?: string | null
+  date_of_birth?: string | null
+  avatar_url?: string | null
+  nationality?: string | null
+  current_city?: string | null
+  current_country?: string | null
+  phone_number?: string | null
+  contact_email?: string | null
+  gender?: string | null
+  marital_status?: string | null
+}
+
+export default function ProfileManagement({ profile, setProfile }: { profile: ProfileData, setProfile: (p: ProfileData) => void }) {
   const [isEditing, setIsEditing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',
     username: profile?.username || '',
-    dob: profile?.date_of_birth || ''
+    date_of_birth: profile?.date_of_birth || '',
+    nationality: profile?.nationality || '',
+    current_city: profile?.current_city || '',
+    current_country: profile?.current_country || '',
+    phone_number: profile?.phone_number || '',
+    contact_email: profile?.contact_email || '',
+    gender: profile?.gender || '',
+    marital_status: profile?.marital_status || ''
   })
 
   // --- AVATAR UPLOAD LOGIC ---
@@ -46,21 +68,26 @@ export default function ProfileManagement({ profile, setProfile }: { profile: an
 
       setProfile({ ...profile, avatar_url: publicUrl })
       alert("Avatar updated!")
-    } catch (error: any) {
-      alert(error.message)
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to upload avatar")
     } finally {
       setUploading(false)
     }
   }
 
   const handleUpdate = async () => {
+    const payload = {
+      ...formData,
+      username: formData.username.toLowerCase().replace(/[^a-z0-9_]/g, '')
+    }
+
     const { error } = await supabase
       .from('profiles')
-      .update(formData)
+      .update(payload)
       .eq('id', profile.id)
 
     if (!error) {
-      setProfile({ ...profile, ...formData })
+      setProfile({ ...profile, ...payload })
       setIsEditing(false)
     }
   }
@@ -110,7 +137,7 @@ export default function ProfileManagement({ profile, setProfile }: { profile: an
         </div>
 
         <div className="p-8 space-y-6">
-          {/* Form fields (Full Name, Username, DOB) remain the same as previous step */}
+          {/* Core profile fields */}
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
             {isEditing ? (
@@ -127,9 +154,10 @@ export default function ProfileManagement({ profile, setProfile }: { profile: an
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">DOB</label>
             {isEditing ? (
               <input 
+                type="date"
                 className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                value={formData.dob}
-                onChange={(e) => setFormData({...formData, dob: e.target.value})}
+                value={formData.date_of_birth}
+                onChange={(e) => setFormData({...formData, date_of_birth: e.target.value})}
               />
             ) : (
               <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.date_of_birth || 'Not set'}</p>
@@ -141,10 +169,103 @@ export default function ProfileManagement({ profile, setProfile }: { profile: an
               <input 
                 className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 value={formData.username}
-                onChange={(e) => setFormData({...formData, dob: e.target.value})}
+                onChange={(e) => setFormData({...formData, username: e.target.value})}
               />
             ) : (
               <p className="text-lg font-semibold text-slate-900 dark:text-white"><Link href={`http://www.offshorepro.com/${profile?.username || 'Not set'}`} className="text-blue-500 hover:underline">offshorepro.com/{profile?.username || 'Not set'}</Link></p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nationality</label>
+            {isEditing ? (
+              <input
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.nationality}
+                onChange={(e) => setFormData({...formData, nationality: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.nationality || 'Not set'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Current City</label>
+            {isEditing ? (
+              <input
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.current_city}
+                onChange={(e) => setFormData({...formData, current_city: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.current_city || 'Not set'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Current Country</label>
+            {isEditing ? (
+              <input
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.current_country}
+                onChange={(e) => setFormData({...formData, current_country: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.current_country || 'Not set'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Phone Number</label>
+            {isEditing ? (
+              <input
+                type="tel"
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.phone_number}
+                onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.phone_number || 'Not set'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Contact Email</label>
+            {isEditing ? (
+              <input
+                type="email"
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.contact_email}
+                onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.contact_email || 'Not set'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gender</label>
+            {isEditing ? (
+              <input
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.gender}
+                onChange={(e) => setFormData({...formData, gender: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.gender || 'Not set'}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Marital Status</label>
+            {isEditing ? (
+              <input
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                value={formData.marital_status}
+                onChange={(e) => setFormData({...formData, marital_status: e.target.value})}
+              />
+            ) : (
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile?.marital_status || 'Not set'}</p>
             )}
           </div>
           

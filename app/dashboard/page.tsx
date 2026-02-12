@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
 import ProfileManagement from "@/components/profile-management"
 import CertsManagement from "@/components/cert-management"
+import RolesManagement from "@/components/role-management"
+import ExperienceManagement from "@/components/experience-management"
 import { 
   LayoutDashboard, User, Briefcase, Ship, Settings, 
   Menu, X, Eye, Award, Clock, AlertTriangle, ChevronRight, Anchor, ArrowRight,
@@ -77,8 +79,8 @@ export default function DashboardPage() {
     switch (activeTab) {
       case 'home': return <HomeOverview profile={profile} />
       case 'profile': return <ProfileManagement profile={profile} setProfile={setProfile} />
-      case 'roles': return <div className="p-8">Role Management (Coming Soon)</div>
-      case 'experience': return <div className="p-8">Experience Logs (Coming Soon)</div>
+      case 'roles': return <RolesManagement profile={profile} setProfile={setProfile} />
+      case 'experience': return <ExperienceManagement profile={profile} setProfile={setProfile} />
       case 'certificates': return <CertsManagement profile={profile} setProfile={setProfile} />
       case 'settings': return <div className="p-8">Settings (Coming Soon)</div>
       default: return <HomeOverview profile={profile} />

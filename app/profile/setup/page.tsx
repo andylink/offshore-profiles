@@ -59,10 +59,13 @@ export default function ProfileStepOne() {
         .from('profiles')
         .select('username')
         .eq('username', username.toLowerCase())
-        .single()
+        .maybeSingle()
 
-      // If data is null, it means the username doesn't exist (it's available)
-      setIsUsernameAvailable(!data)
+      if (error) {
+        setIsUsernameAvailable(false)
+      } else {
+        setIsUsernameAvailable(!data)
+      }
       setCheckingUsername(false)
     }
 
@@ -70,7 +73,7 @@ export default function ProfileStepOne() {
     return () => clearTimeout(timeoutId)
   }, [username])
 
-  const handleNext = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isUsernameAvailable) return
 
@@ -84,12 +87,11 @@ export default function ProfileStepOne() {
         full_name: formData.fullName,
         date_of_birth: formData.dob,
         avatar_url: avatarUrl,
-        updated_at: new Date()
+        setup_completed: true
       })
 
       if (!error) {
-        // Navigate to Step 2 (Roles/Sectors)
-        router.push("/profile/roles")
+        router.push("/dashboard")
       }
     }
     setLoading(false)
@@ -105,7 +107,7 @@ export default function ProfileStepOne() {
           <div className="max-w-md mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
       <h2 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Basic Info</h2>
       
-      <form onSubmit={handleNext} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Profile Image Upload */}
         <div className="flex flex-col items-center mb-6">
           {userId && (
@@ -165,7 +167,7 @@ export default function ProfileStepOne() {
           disabled={loading || !isUsernameAvailable}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition disabled:opacity-50 mt-4"
         >
-          {loading ? "Saving..." : "Next: My Roles"}
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
           </div>

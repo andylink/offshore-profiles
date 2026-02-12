@@ -314,6 +314,27 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
     setCustomSections((prev) => prev.filter((section) => section.id !== id))
   }
 
+  const moveCustomSectionToIndex = (id: string, targetIndex: number) => {
+    setCustomSections((prev) => {
+      const currentIndex = prev.findIndex((section) => section.id === id)
+      if (currentIndex === -1) return prev
+
+      const boundedTargetIndex = Math.max(0, Math.min(targetIndex, prev.length - 1))
+      if (currentIndex === boundedTargetIndex) return prev
+
+      const next = [...prev]
+      const [movedSection] = next.splice(currentIndex, 1)
+      next.splice(boundedTargetIndex, 0, movedSection)
+      return next
+    })
+  }
+
+  const updateCustomSectionOrder = (id: string, nextOrder: string) => {
+    const parsedOrder = Number.parseInt(nextOrder, 10)
+    if (Number.isNaN(parsedOrder)) return
+    moveCustomSectionToIndex(id, parsedOrder - 1)
+  }
+
   const saveCurrentCv = async () => {
     if (!profile?.id) return
 
@@ -750,8 +771,22 @@ export default function CvBuilder({ profile }: { profile: Profile | null }) {
               </button>
             </div>
             {customSections.length === 0 && <p className="text-sm text-slate-500">No custom sections yet.</p>}
-            {customSections.map((section) => (
+            {customSections.map((section, index) => (
               <div key={section.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Section {index + 1}</p>
+                  <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Order
+                    <input
+                      type="number"
+                      min={1}
+                      max={customSections.length}
+                      value={index + 1}
+                      onChange={(e) => updateCustomSectionOrder(section.id, e.target.value)}
+                      className="w-16 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent text-sm"
+                    />
+                  </label>
+                </div>
                 <input
                   value={section.title}
                   onChange={(e) => updateCustomSection(section.id, { title: e.target.value })}
